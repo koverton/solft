@@ -18,7 +18,7 @@ great reasons](https://solace.com/) why you might want to!
 
                 @Override
                 public void onBackup() {
-                    logger.info("STATE CHANGE TO PASSIVE");
+                    logger.info("STATE CHANGE TO BACKUP");
                 }
             });
     // ...
