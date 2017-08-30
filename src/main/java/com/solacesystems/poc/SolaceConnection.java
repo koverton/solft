@@ -7,15 +7,21 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class SolaceConnection {
+/**
+ * This internal class provides the underlying Solace capabilities to implement application layer fault tolerant clustering.
+ * Instances of this class are used by the {@link com.solacesystems.poc.FTMgr}. Applications should not need to
+ * interact with this directly, they should merely instantiate one according to the available public constructors,
+ * and pass the instance into the {@link com.solacesystems.poc.FTMgr#FTMgr(SolaceConnection)} constructor.
+ */
+class SolaceConnection {
     private static final Logger logger = LoggerFactory.getLogger(SolaceConnection.class);
 
-    public SolaceConnection(JCSMPSession sharedSession) throws JCSMPException {
+    SolaceConnection(JCSMPSession sharedSession) throws JCSMPException {
         session = sharedSession;
         validateCapabilities();
     }
 
-    public SolaceConnection(Properties connectionProperties) throws JCSMPException {
+    SolaceConnection(Properties connectionProperties) throws JCSMPException {
         final JCSMPProperties solprops = new JCSMPProperties();
         for (String name : connectionProperties.stringPropertyNames()) {
             Object value = connectionProperties.getProperty(name);
@@ -42,7 +48,7 @@ public class SolaceConnection {
      * @param listener Event listener to be invoked for any FT state event changes.
      * @throws JCSMPException
      */
-    public void bindExclusive(String exclusiveClusterName, final FTEventListener listener) throws JCSMPException {
+    void bindExclusive(String exclusiveClusterName, final FTEventListener listener) throws JCSMPException {
         provisionExclusiveQueue(exclusiveClusterName);
 
         final ConsumerFlowProperties queueProps = new ConsumerFlowProperties();

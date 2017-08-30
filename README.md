@@ -64,46 +64,16 @@ The example simply connects to a Solace broker, binds to the FT-Cluster via a So
 
 ## CODING
 
-The sample application isn't really useful by itself. To use in your own code you will want 
-to make use of the `FTMgr` class and the `SolaceConnection` class.
+This Java library leverages Solace's guaranteed delivery capabilities to provide simple Leader Election events to applications requiring fault tolerance, by creating an instance of the FTMgr and binding a listener to it to receive FT role event updates.
 
-### `SolaceConnection`
+To use it you must have a Solace Message Broker available for your application to connect to for this library to work. 
+ 
+First you will need a connected Solace session. You can either create a new session just for solft by passing an 
+instance of `Properties`, or more likely you'd pass a shared Solace session, into your `FTMgr` constructor. 
+You use the `FTMgr` to join the FT-cluster and listen for events when cluster leadership state changes occur.
 
-First you will need a connection Solace session.
-
-This is a barebones connector that will either create a new connection from properties, 
-or it can leverage an existing Solace session instance.
-
-```java
-    public SolaceConnection(JCSMPSession sharedSession) throws JCSMPException;
-
-    public SolaceConnection(Properties connectionProperties) throws JCSMPException;
-```
-
-### `FTMgr`
-
-This is the actual manager class that binds to the Solace FT Cluster and sends you 
-notifications when your leadership mode has changed. This is as simple as handing it a `SolaceConnection`,
-pointing it at a Solace FT cluster and waiting for the events:
-
-```java
-    try {
-        final FTMgr ftMgr = new FTMgr(solaceConnection);
-        ftMgr.start(ftClusterName,
-                new FTEventListener() {
-                    @Override
-                    public void onActive() {
-                        logger.info("STATE CHANGE TO ACTIVE");
-                    }
-
-                    @Override
-                    public void onBackup() {
-                        logger.info("STATE CHANGE TO BACKUP");
-                    }
-                });
-        // ...
-    }
-    catch(JCSMPException e) {
-        e.printStackTrace();
-    }
-```
+To listen for these events you must implement a simple `FTEventListener` interface and pass the listener into 
+the `start()` method when starting the `FTMgr`. All applications joining the same named cluster on the same 
+Solace broker will be part of the same FT-cluster, where a single application is elected leader until it unbinds 
+from the cluster for any reason. In that event, the cluster elects a new member and an `FTEventListener.onActive()` 
+event is raised for that instance notifying it of this role change.

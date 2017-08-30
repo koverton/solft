@@ -1,18 +1,41 @@
 package com.solacesystems.poc;
 
 import com.solacesystems.jcsmp.JCSMPException;
+import com.solacesystems.jcsmp.JCSMPSession;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Instances of this class bind to a FT-cluster in a Solace Message Broker and manage FT-cluster membership
+ * events for one binding. To implement Fault Tolerance within your application, you would typically have
+ * several redundant instances of your application binding to the same FT-cluster, and behave appropriately
+ * when the FTMgr instance signals your application to either become Active or become Backup.
+ */
 public class FTMgr {
 
     final private SolaceConnection connection;
 
-    public FTMgr(SolaceConnection connection) {
-        this.connection = connection;
+    /**
+     * Creates a new Solace session connected to a Solace Message Bus for use in joining
+     * a FT-Cluster for Leader Election and role events.
+     * @param solaceConnectionProperties Properties file containing Solace session properties.
+     * @throws JCSMPException In the event of any error creating the Solace session and connecting it to a Solace Message Broker.
+     */
+    public FTMgr(Properties solaceConnectionProperties) throws JCSMPException {
+        this.connection = new SolaceConnection(solaceConnectionProperties);
+    }
+
+    /**
+     * Uses an existing Solace session connected to a Solace Message Bus for use in joining
+     * a FT-Cluster for Leader Election and role events.
+     * @param solaceSession An existing Solace session.
+     * @throws JCSMPException In the event of any error creating the Solace session and connecting it to a Solace Message Broker.
+     */
+    public FTMgr(JCSMPSession solaceSession) throws JCSMPException {
+        this.connection = new SolaceConnection(solaceSession);
     }
 
     /**
@@ -51,15 +74,13 @@ public class FTMgr {
         String clusterName = args[1];
 
         try {
-            final SolaceConnection conn = new SolaceConnection(props);
-            final FTMgr ftMgr = new FTMgr(conn);
+            final FTMgr ftMgr = new FTMgr(props);
             ftMgr.start(clusterName,
                     new FTEventListener() {
                         @Override
                         public void onActive() {
                             System.out.println("BECOMING MASTER");
                         }
-
                         @Override
                         public void onBackup() {
                             System.out.println("BECOMING BACKUP");
