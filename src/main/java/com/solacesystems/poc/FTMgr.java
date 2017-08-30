@@ -15,11 +15,17 @@ public class FTMgr {
         this.connection = connection;
     }
 
-    public void start(String exclusiveQueueName, final FTEventListener listener) throws JCSMPException {
+    /**
+     * Bind to a FT cluster as a cluster member for leader election, listening for FT state change events.
+     * @param ftClusterName Exclusive cluster for FT-selection.
+     * @param listener Event listener to be invoked for any FT state event changes.
+     * @throws JCSMPException In the event of any failures in connecting to Solace or binding to the cluster.
+     */
+    public void start(String ftClusterName, final FTEventListener listener) throws JCSMPException {
         // Everyone starts out as slave, Solace doesn't event for listeners initially bound as backup
         listener.onBackup();
         connection.bindExclusive(
-                exclusiveQueueName,
+                ftClusterName,
                 new FTEventListener() {
                     @Override
                     public void onActive() {
@@ -42,12 +48,12 @@ public class FTMgr {
         }
 
         Properties props = readPropsFile(args[0]);
-        String queueName = args[1];
+        String clusterName = args[1];
 
         try {
             final SolaceConnection conn = new SolaceConnection(props);
             final FTMgr ftMgr = new FTMgr(conn);
-            ftMgr.start(queueName,
+            ftMgr.start(clusterName,
                     new FTEventListener() {
                         @Override
                         public void onActive() {

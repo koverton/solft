@@ -34,11 +34,19 @@ public class SolaceConnection {
             throw new JCSMPException("Session has insufficient capabilities to support application Fault Tolerance");
     }
 
-    public void bindExclusive(String queueName, final FTEventListener listener) throws JCSMPException {
-        provisionExclusiveQueue(queueName);
+    /**
+     * Bind into an exclusive cluster; a leader is selected from all applications bound to a give cluster.
+     * Whenever the Leader process unbinds for any reason a new Leader is elected from the rest of the
+     * bound participants.
+     * @param exclusiveClusterName Exclusive cluster for FT-selection.
+     * @param listener Event listener to be invoked for any FT state event changes.
+     * @throws JCSMPException
+     */
+    public void bindExclusive(String exclusiveClusterName, final FTEventListener listener) throws JCSMPException {
+        provisionExclusiveQueue(exclusiveClusterName);
 
         final ConsumerFlowProperties queueProps = new ConsumerFlowProperties();
-        queueProps.setEndpoint(JCSMPFactory.onlyInstance().createQueue(queueName));
+        queueProps.setEndpoint(JCSMPFactory.onlyInstance().createQueue(exclusiveClusterName));
         queueProps.setActiveFlowIndication(true);
         session.createFlow(
                 new XMLMessageListener() {

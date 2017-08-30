@@ -9,7 +9,7 @@ great reasons](https://solace.com/) why you might want to!
 
 ```java
     new FTMgr(solaceConnection)
-        .start(queueName,
+        .start(ftClusterName,
             new FTEventListener() {
                 @Override
                 public void onActive() {
@@ -37,9 +37,9 @@ The executable requires a properties file with all variables defining connectivi
 to Solace (further documentation below). Other variables can be
 specified on the commandline and include:
 
-`bin/run-example.sh <propsfile> <solace-exclusive-queue> `
-- propsfile: Solace session properties file
-- queuename: Solace exclusive queue name
+`bin/run-example.sh <propsfile> <solace-cluster-name> `
+- `props-file`: Solace session properties file for connecting
+- `cluster-name`: Solace FT cluster name
 
 
 ### Example Configuration Properties
@@ -56,10 +56,10 @@ username = default
 After building the package can be run in place by leveraging MVN's understanding
 of your classpath in the `bin/run-example.sh` script. For example:
 
-        bin/run-example.sh src/main/resources/localtest.properties myAppExcQ
+`bin/run-example.sh src/main/resources/localtest.properties myCluster01`
         
-The example simply connects to a Solace broker, binds to the named exclusive-queue 
-(and provisions it if it does not exist), and alerts whenever it changes state to MASTER or SLAVE.
+The example simply connects to a Solace broker, binds to the FT-Cluster via a Solace exclusive-queue 
+(and provisions it if it does not exist), and alerts whenever it changes state to MASTER or BACKUP.
 
 ## CODING
 
@@ -81,14 +81,14 @@ or it can leverage an existing Solace session instance.
 
 ### `FTMgr`
 
-This is the actual manager class that binds to the Solace exclusive queue and sends you 
+This is the actual manager class that binds to the Solace FT Cluster and sends you 
 notifications when your leadership mode has changed. This is as simple as handing it a `SolaceConnection`,
-pointing it at a Solace exclusive-queue and waiting for the events:
+pointing it at a Solace FT cluster and waiting for the events:
 
 ```java
     try {
         final FTMgr ftMgr = new FTMgr(solaceConnection);
-        ftMgr.start(queueName,
+        ftMgr.start(ftClusterName,
                 new FTEventListener() {
                     @Override
                     public void onActive() {
