@@ -1,7 +1,8 @@
 # solft: Simple Fault Tolerance for Java Applications
 
 This Java library leverages Solace's guaranteed delivery capabilities to provide simple 
-Leader Election events to applications requiring fault tolerance.
+Leader Election events to applications requiring fault tolerance. But it does require 
+a Solace Message Broker is available for your application to connect to for this library to work.
 
 If you are already using Solace, just pass your Solace session instance into the 
 `FTMgr` and listen for status events. If you are not using Solace there are [several 
