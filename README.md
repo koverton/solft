@@ -1,6 +1,28 @@
-# solft
-Basic Solace Fault Tolerance library providing leader election for applications.
+# solft: Simple Fault Tolerance for Java Applications
 
+This Java library leverages Solace's guaranteed delivery capabilities to provide simple 
+Leader Election events to applications requiring fault tolerance.
+
+If you are already using Solace, just pass your Solace session instance into the 
+`FTMgr` and listen for status events. If you are not using Solace there are [several 
+great reasons](https://solace.com/) why you might want to!
+
+```java
+    new FTMgr(solaceConnection)
+        .start(queueName,
+            new FTEventListener() {
+                @Override
+                public void onActive() {
+                    logger.info("STATE CHANGE TO ACTIVE");
+                }
+
+                @Override
+                public void onPassive() {
+                    logger.info("STATE CHANGE TO PASSIVE");
+                }
+            });
+    // ...
+```
 ## BUILDING
 
 This is a Maven project referencing all public libraries, so you will need
@@ -16,8 +38,8 @@ to Solace (further documentation below). Other variables can be
 specified on the commandline and include:
 
 `bin/run-example.sh <propsfile> <solace-exclusive-queue> `
-- path/to/conn.properties
-- Solace exclusive queue name
+- propsfile: Solace session properties file
+- queuename: Solace exclusive queue name
 
 
 ### Example Configuration Properties
@@ -39,12 +61,12 @@ of your classpath in the `bin/run-example.sh` script. For example:
 The example simply connects to a Solace broker, binds to the named exclusive-queue 
 (and provisions it if it does not exist), and alerts whenever it changes state to MASTER or SLAVE.
 
-## USING THE LIBRARY
+## CODING
 
 The sample application isn't really useful by itself. To use in your own code you will want 
 to make use of the `FTMgr` class and the `SolaceConnection` class.
 
-### SolaceConnection
+### `SolaceConnection`
 
 First you will need a connection Solace session.
 
@@ -57,30 +79,30 @@ or it can leverage an existing Solace session instance.
     public SolaceConnection(Properties connectionProperties) throws JCSMPException;
 ```
 
-### FTMgr
+### `FTMgr`
 
 This is the actual manager class that binds to the Solace exclusive queue and sends you 
 notifications when your leadership mode has changed. This is as simple as handing it a `SolaceConnection`,
 pointing it at a Solace exclusive-queue and waiting for the events:
 
 ```java
-        try {
-            final FTMgr ftMgr = new FTMgr(solaceConnection);
-            ftMgr.start(queueName,
-                    new FTEventListener() {
-                        @Override
-                        public void onActive() {
-                            logger.info("STATE CHANGE TO ACTIVE");
-                        }
+    try {
+        final FTMgr ftMgr = new FTMgr(solaceConnection);
+        ftMgr.start(queueName,
+                new FTEventListener() {
+                    @Override
+                    public void onActive() {
+                        logger.info("STATE CHANGE TO ACTIVE");
+                    }
 
-                        @Override
-                        public void onPassive() {
-                            logger.info("STATE CHANGE TO PASSIVE");
-                        }
-                    });
-            // ...
-        }
-        catch(JCSMPException e) {
-            e.printStackTrace();
-        }
+                    @Override
+                    public void onPassive() {
+                        logger.info("STATE CHANGE TO PASSIVE");
+                    }
+                });
+        // ...
+    }
+    catch(JCSMPException e) {
+        e.printStackTrace();
+    }
 ```
