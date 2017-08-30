@@ -59,7 +59,7 @@ public class SolaceConnection {
                             listener.onActive();
                         }
                         else {
-                            listener.onPassive();
+                            listener.onBackup();
                         }
                     }
                 })

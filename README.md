@@ -17,7 +17,7 @@ great reasons](https://solace.com/) why you might want to!
                 }
 
                 @Override
-                public void onPassive() {
+                public void onBackup() {
                     logger.info("STATE CHANGE TO PASSIVE");
                 }
             });
@@ -96,8 +96,8 @@ pointing it at a Solace exclusive-queue and waiting for the events:
                     }
 
                     @Override
-                    public void onPassive() {
-                        logger.info("STATE CHANGE TO PASSIVE");
+                    public void onBackup() {
+                        logger.info("STATE CHANGE TO BACKUP");
                     }
                 });
         // ...

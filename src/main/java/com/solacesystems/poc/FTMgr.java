@@ -17,7 +17,7 @@ public class FTMgr {
 
     public void start(String exclusiveQueueName, final FTEventListener listener) throws JCSMPException {
         // Everyone starts out as slave, Solace doesn't event for listeners initially bound as backup
-        listener.onPassive();
+        listener.onBackup();
         connection.bindExclusive(
                 exclusiveQueueName,
                 new FTEventListener() {
@@ -26,8 +26,8 @@ public class FTMgr {
                         listener.onActive();
                     }
                     @Override
-                    public void onPassive() {
-                        listener.onPassive();
+                    public void onBackup() {
+                        listener.onBackup();
                     }
                 }
         );
@@ -55,8 +55,8 @@ public class FTMgr {
                         }
 
                         @Override
-                        public void onPassive() {
-                            System.out.println("BECOMING SLAVE");
+                        public void onBackup() {
+                            System.out.println("BECOMING BACKUP");
                         }
                     });
 
