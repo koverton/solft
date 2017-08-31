@@ -14,6 +14,7 @@ great reasons](https://solace.com/) why you might want to!
             new FTEventListener() {
                 @Override
                 public void onActive(BytesXMLMessage m) {
+                    // When started this way, m is always null
                     logger.info("STATE CHANGE TO ACTIVE");
                 }
 
@@ -116,6 +117,7 @@ The code example becomes:
             new FTEventListener() {
                 @Override
                 public void onActive(BytesXMLMessage m) {
+                    // When started this way, m can contain output from the prior Active member
                     logger.info("STATE CHANGE TO ACTIVE with state: " + m.dump());
                 }
 
