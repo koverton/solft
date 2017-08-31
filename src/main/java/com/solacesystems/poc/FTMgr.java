@@ -25,6 +25,7 @@ import java.util.Properties;
 public class FTMgr {
 
     final private SolaceConnection connection;
+    private FTEventListener listener; // there can only be one!
 
     /**
      * Creates a new Solace session connected to a Solace Message Bus for use in joining
@@ -53,8 +54,9 @@ public class FTMgr {
      * @throws JCSMPException In the event of any failures in connecting to Solace or binding to the cluster.
      */
     public void start(String ftClusterName, final FTEventListener listener) throws JCSMPException {
+        this.listener = listener;
         // Everyone starts out as slave, Solace doesn't event for listeners initially bound as backup
-        listener.onBackup();
+        this.listener.onBackup();
         connection.bindExclusive(
                 ftClusterName,
                 new FTEventListener() {
@@ -95,6 +97,14 @@ public class FTMgr {
                     }
                 }
         );
+    }
+
+    /**
+     * Terminate a binding to a FT-Cluster. After calling stop() this instance may no longer be used.
+     */
+    public void stop() {
+        connection.stop();
+        this.listener.onBackup();
     }
 
     public static void main(String[] args) {

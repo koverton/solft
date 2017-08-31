@@ -42,6 +42,10 @@ class SolaceConnection {
         validateCapabilities();
     }
 
+    void stop() {
+        session.closeSession();
+    }
+
     /**
      * Validates that the current Solace session supports: Active Flow Indication, Subscribing to Guaranteed Messages, and Managing Solace Guaranteed Endpoints.
      * @throws JCSMPException In the event of any error validating the session's capabilities match those required by this object.
